@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 
+
 public class TestGame implements Runnable{
 	public static TestGame Instance;
 	public Boolean validLogin;
@@ -11,6 +12,7 @@ public class TestGame implements Runnable{
 	Boolean usernameInUse = false;
 	ClientFrame clientFrame;
 	String userList = "";
+	GameObj game = new GameObj();
 	
 	public static void main(String[] args){        
 
@@ -84,6 +86,10 @@ public class TestGame implements Runnable{
 		SendMessage(message, "CHAT");
 	}
 	
+	public void sendMove(int row, int col){
+		//SendMessage()
+	}
+	
 	public void readMessage(){			
 		try{						
 			Message input = (Message) ois.readObject();
@@ -120,7 +126,19 @@ public class TestGame implements Runnable{
 
 				System.out.println("This code executed");
 				
-			}			
+			}
+			else if(input.MessageType.equals("STARTEDGAME")){
+				game.cloneProps((GameObj) input.MessageData);
+			}
+			else if(input.MessageType.equals("PLAYER2JOINED")){
+				game.setPlayer2((String) input.MessageData);
+				clientFrame.mainMenu.gamePanel.setPlayer1Label(game.getPlayer1());
+				clientFrame.mainMenu.gamePanel.setPlayer2Label(game.getPlayer2());
+				
+			}
+			else if(input.MessageType.equals("JOINFAILED")){
+				clientFrame.mainMenu.isJoinable = false;
+			}
 			else if(input.MessageType.equals("-EXITED ")){
 				String user = (String) input.MessageData;
 				clientFrame.setUserExited(user);

@@ -9,13 +9,15 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
 public class MainMenuPanel extends JPanel implements MouseListener{
-	Game game = new Game();
+	Game gamePanel = new Game();
 	ChatPanel chatPanel = new ChatPanel();
 	UserPanel users = new UserPanel();
 	
 	JPanel  innerContainer, jbtContainer;
 	JLabel  lblMainMenu;
-	JButton jbtStartGame, jbtOptions, jbtLogout, jbtExit;
+	JButton jbtStartGame, jbtJoinGame, jbtOptions, jbtLogout, jbtExit;
+	
+	boolean isJoinable = true;
 	
 	public MainMenuPanel(){
 		// set properties of main menu panel
@@ -32,7 +34,7 @@ public class MainMenuPanel extends JPanel implements MouseListener{
 				BorderFactory.createMatteBorder(15, 25, 15, 25, new Color(41, 41, 41))));
 		
 		// Create button panel, set properties
-		jbtContainer = new JPanel(new GridLayout(4, 1, 0, 0));
+		jbtContainer = new JPanel(new GridLayout(5, 1, 0, 0));
 		jbtContainer.setBackground( new Color(47, 47, 47) );
 		
 		// Create Main Menu label, set props
@@ -43,6 +45,7 @@ public class MainMenuPanel extends JPanel implements MouseListener{
 		
 		// Create buttons
 		jbtStartGame = new JButton("Start Game");
+		jbtJoinGame = new JButton("Join Game");
 		jbtOptions = new JButton("Options");
 		jbtLogout = new JButton("Logout");
 		jbtExit = new JButton("Exit");
@@ -52,6 +55,7 @@ public class MainMenuPanel extends JPanel implements MouseListener{
 		
 		// Set button properties
 		setJBTProps(jbtStartGame);
+		setJBTProps(jbtJoinGame);
 		setJBTProps(jbtOptions);
 		setJBTProps(jbtLogout);
 		setJBTProps(jbtExit);
@@ -59,12 +63,14 @@ public class MainMenuPanel extends JPanel implements MouseListener{
 		
 		// Add mouse listeners for buttons
 		jbtStartGame.addMouseListener(this);
+		jbtJoinGame.addMouseListener(this);
 		jbtOptions.addMouseListener(this);
 		jbtLogout.addMouseListener(this);
 		jbtExit.addMouseListener(this);
 		
 		// Add buttons to button container
 		jbtContainer.add(jbtStartGame);
+		jbtContainer.add(jbtJoinGame);
 		jbtContainer.add(jbtOptions);
 		jbtContainer.add(jbtLogout);
 		jbtContainer.add(jbtExit);
@@ -76,7 +82,7 @@ public class MainMenuPanel extends JPanel implements MouseListener{
 		// Add innerContainer to panel
 		// Also add game panel to this one for now (...)
 		add(innerContainer);
-		add(game);
+		add(gamePanel);
 	}
 
 	/** MouseListeners */
@@ -84,6 +90,9 @@ public class MainMenuPanel extends JPanel implements MouseListener{
 	public void mouseEntered(MouseEvent me){
 		if(me.getSource() == jbtStartGame){
 			setJBTPropsHighlight(jbtStartGame);
+		}
+		if(me.getSource() == jbtJoinGame){
+			setJBTPropsHighlight(jbtJoinGame);
 		}
 		if(me.getSource() == jbtOptions){}
 		if(me.getSource() == jbtLogout){
@@ -96,6 +105,9 @@ public class MainMenuPanel extends JPanel implements MouseListener{
 	public void mouseExited(MouseEvent me){
 		if(me.getSource() == jbtStartGame){
 			setJBTProps(jbtStartGame);
+		}
+		if(me.getSource() == jbtJoinGame){
+			setJBTProps(jbtJoinGame);
 		}
 		if(me.getSource() == jbtOptions){}
 		if(me.getSource() == jbtLogout){
@@ -110,27 +122,59 @@ public class MainMenuPanel extends JPanel implements MouseListener{
 		if(me.getSource() == jbtStartGame && jbtStartGame.getText() == "Start Game"){
 			// Let server know, user has started game
 			TestGame.Instance.SendMessage(new String(), "STARTGAME");
-
+			System.out.println("User has started a new game.");
+			
+			try {
+			    Thread.sleep(100);                 //1000 milliseconds is one second.
+			} catch(InterruptedException ex) {
+			    Thread.currentThread().interrupt();
+			}
+			
 			// Set main menu panel false, set other panels true
 			innerContainer.setVisible(false);
-			game.setVisible(true);
+			gamePanel.setVisible(true);
     		users.setVisible(true);
     		chatPanel.setVisible(true);
-    		game.setBackground( Color.WHITE );
+    		gamePanel.setBackground( Color.WHITE );
     		ClientFrame.loginPanel.setBackground( Color.WHITE );
     		setBackground( Color.WHITE );
+    		
+    		gamePanel.lblPlayer1.setText("Player 1:  " + TestGame.Instance.game.getPlayer1());
 		}
 		if(me.getSource() == jbtStartGame && jbtStartGame.getText() == "Resume"){
 			// If jbtStartGame no longer says Start Game, and instead says Resume
 			// Then no need to let server know that user has started game.
 			// Probably could put this stuff in another method, since it's duplicate code
 			innerContainer.setVisible(false);
-			game.setVisible(true);
+			gamePanel.setVisible(true);
     		users.setVisible(true);
     		chatPanel.setVisible(true);
-    		game.setBackground( Color.WHITE );
+    		gamePanel.setBackground( Color.WHITE );
     		ClientFrame.loginPanel.setBackground( Color.WHITE );
     		setBackground( Color.WHITE );
+		}
+		if(me.getSource() == jbtJoinGame){
+			// Let server know, user has started game
+			TestGame.Instance.SendMessage(new String(), "JOINGAME");
+			
+			try {
+			    Thread.sleep(100);                 //1000 milliseconds is one second.
+			} catch(InterruptedException ex) {
+			    Thread.currentThread().interrupt();
+			}
+			if(isJoinable){
+				innerContainer.setVisible(false);
+				gamePanel.setVisible(true);
+				users.setVisible(true);
+				chatPanel.setVisible(true);
+				gamePanel.setBackground( Color.WHITE );
+				ClientFrame.loginPanel.setBackground( Color.WHITE );
+				setBackground( Color.WHITE );
+			}
+			else{
+				JOptionPane.showMessageDialog(this,
+					    "There are no available games to join at this time.");
+			}
 		}
 		if(me.getSource() == jbtOptions){
 			

@@ -75,6 +75,9 @@ public class ClientFrame extends JFrame implements MouseListener{
             	if(chatPanel.isVisible()){
             		TestGame.Instance.SendMessage(new String(), "LOGOUT");
             	}
+            	else{
+            		TestGame.Instance.SendMessage(new String(), "LOGOUTUSER");
+            	}
             }
         });
 		
@@ -164,7 +167,7 @@ public class ClientFrame extends JFrame implements MouseListener{
 		if(me.getSource() == users.jbtMainMenu){
 			mainMenu.innerContainer.setVisible(true);
 			mainMenu.jbtStartGame.setText("Resume");
-			mainMenu.game.setVisible(false);
+			mainMenu.gamePanel.setVisible(false);
 			mainMenu.users.setVisible(false);
 			mainMenu.chatPanel.setVisible(false);
 			loginPanel.setBackground(new Color(47, 47, 47));
