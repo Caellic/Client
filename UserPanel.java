@@ -22,16 +22,15 @@ import javax.swing.border.MatteBorder;
 
 
 public class UserPanel extends JPanel implements MouseListener{
-	/** Private data members */
-	private JPanel userTitlePanel = new JPanel();
-	private JLabel users = new JLabel("Users");
+	JPanel userTitlePanel = new JPanel();
+	JLabel users = new JLabel("Users");
 
-	private JPanel userListPanel = new JPanel();
+	JPanel userListPanel = new JPanel();
 	JTextArea userList = new JTextArea("");
 	
-	private JPanel userButtonPanel = new JPanel();
+	JPanel userButtonPanel = new JPanel();
 	JButton jbtMainMenu = new JButton("Main Menu");
-	private JButton jbtExitGame = new JButton("Exit");
+	JButton jbtQuitGame = new JButton("Quit Game");
 	
 	/** Constructor for UserPanel (Located East in Frame) */
 	public UserPanel(){
@@ -51,16 +50,16 @@ public class UserPanel extends JPanel implements MouseListener{
 		userListPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		userListPanel.setBackground(new Color(41, 41, 41));
 		userListPanel.setBorder(new LineBorder(Color.BLACK));
-		userListPanel.setPreferredSize(new Dimension(120,310));
+		userListPanel.setPreferredSize(new Dimension(120,390));
 		
 		// Set properties for UserTitle Text
 		users.setFont(new Font("Tahoma", Font.BOLD, 16));
 		users.setForeground(new Color(50, 165, 224));
 		
 		// Set properties for list of users
-		userList.setRows(25);
-		userList.setColumns(8);
-		userList.setPreferredSize(new Dimension(108,310));
+		userList.setRows(26);
+		userList.setColumns(9);
+		userList.setPreferredSize(new Dimension(108, 390));
 		userList.setEditable(false);
 		userList.setBackground(new Color(47, 47, 47));
 		userList.setForeground(Color.WHITE);
@@ -77,13 +76,13 @@ public class UserPanel extends JPanel implements MouseListener{
 		
 		// Set properties for buttons
 		jbtMainMenu.setBackground(new Color(41, 41, 41));
-		jbtExitGame.setBackground(new Color(41, 41, 41));
+		jbtQuitGame.setBackground(new Color(41, 41, 41));
 		jbtMainMenu.setForeground(new Color(50, 165, 224));
-		jbtExitGame.setForeground(new Color(50, 165, 224));
+		jbtQuitGame.setForeground(new Color(50, 165, 224));
 		
 		// Add buttons to button panel
 		userButtonPanel.add(jbtMainMenu);
-		userButtonPanel.add(jbtExitGame);
+		userButtonPanel.add(jbtQuitGame);
 		
 		// Add all categorized panels to userPanel
 		add(userTitlePanel, BorderLayout.NORTH);
@@ -91,13 +90,14 @@ public class UserPanel extends JPanel implements MouseListener{
 		add(userButtonPanel, BorderLayout.SOUTH);	
 		
 		// Add action for exit button (exit program)
-		jbtExitGame.addActionListener(new ActionListener() {
+	/*	jbtQuitGame.addActionListener(new ActionListener() {
 	    	// Handle ActionEvent 
 	    	public void actionPerformed(ActionEvent e) {
-	    		TestGame.Instance.SendMessage(new String(), "LOGOUT");
-	    		System.exit(0);
+	    		//TestGame.Instance.SendMessage(new String(), "LOGOUT");
+	    		//System.exit(0);
 	    	}
 	    });
+	    */
 	}
 	
 	/** MouseListeners */
@@ -107,7 +107,7 @@ public class UserPanel extends JPanel implements MouseListener{
 	public void mousePressed(MouseEvent me){}
 	public void mouseReleased(MouseEvent me){
 		if(me.getSource() == jbtMainMenu){
-		//	mainMenu.innerContainer.setVisible(true);
+		//	TestGame.Instance.clientFrame.mainMenu.innerContainer.setVisible(true);
 		//	mainMenu.game.setVisible(false);
 		//	mainMenu.users.setVisible(false);
 	//		mainMenu.chatPanel.setVisible(false);

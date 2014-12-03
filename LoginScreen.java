@@ -23,43 +23,41 @@ import javax.swing.border.MatteBorder;
 
 public class LoginScreen extends JPanel implements MouseListener{
 	/** Private data members */
-	// Various other panels to include
-	//static Game game = new Game();
-	private ChatPanel chatPanel = new ChatPanel();
-	private UserPanel users = new UserPanel();
-	private RegisterUser rgUser = new RegisterUser();
-	private MainMenuPanel mainMenu = new MainMenuPanel();
+	// Panels from other classes
+	RegisterPanel rgsterPanel   = new RegisterPanel();
+	MainMenuPanel mainMenuPanel = new MainMenuPanel();
+	IntroPanel introPanel  		= new IntroPanel();
 	
-	// LoginContainer, Holds jbt, loginInfo and loginTitle panels
-	JPanel loginContainer = new JPanel();
-	private JPanel loginTitle = new JPanel();
-	private JPanel loginInfoContainer = new JPanel();
-	private JPanel jbtContainer = new JPanel();
+	// Login Panels
+	JPanel loginContainer	  = new JPanel();
+	JPanel loginTitle	 	  = new JPanel();
+	JPanel loginInfoContainer = new JPanel();
+	JPanel jbtContainer		  = new JPanel();
 	
 	// For Login Title 
-	private JLabel jblLoginTitle = new JLabel("Login");
+	JLabel jblLoginTitle = new JLabel("Login");
 	
 	// Username, password and error message for loginInfoContainer
-	private JTextField userName = new JTextField(13);
-	private JTextField password = new JTextField(13);
-	private JLabel upError = new JLabel();
+	JTextField userName  = new JTextField(13);
+	JTextField password  = new JTextField(13);
+	JLabel userPassError = new JLabel();
 	
 	// Register new user
-	private JLabel registerNow = new JLabel();
+	JLabel registerNow = new JLabel();
 	
 	// Buttons for jbt container
-	private JButton jbtLogin = new JButton("Login");
-	private JButton jbtExit = new JButton("Exit");
+	JButton jbtLogin = new JButton("Login");
+	JButton jbtExit  = new JButton("Exit");
 	
 	/** Constructor For LoginScreen (Located Center in Frame) */
 	public LoginScreen(){
 		// Set layout and background of LoginScreen
-		setLayout(new FlowLayout(FlowLayout.CENTER, 0, 70));
-		setBackground(new Color(47, 47, 47));
+		setLayout(new FlowLayout(FlowLayout.CENTER, 0, 90));
+		setBackground(  new Color( 41, 41, 41) );
 		
 		// Set layout and visibility of LoginContainer (Contains all the login details)
 		loginContainer.setLayout(new BorderLayout(5, 8));
-		loginContainer.setVisible(true);
+		loginContainer.setVisible(false);
 		
 		// jbt Container, is the button container  Sets the dimensions, layout
 		// and adds login and exit buttons
@@ -94,9 +92,9 @@ public class LoginScreen extends JPanel implements MouseListener{
 		textLogin.setBackground(new Color(216, 220, 222));
 		// Sets user/password error to false (doesn't always show)
 		//and adds to loginInfo Container
-		upError.setVisible(false);
-		upError.setForeground(new Color(171, 0, 16));
-		loginInfoContainer.add(upError);
+		userPassError.setVisible(false);
+		userPassError.setForeground(new Color(171, 0, 16));
+		loginInfoContainer.add(userPassError);
 		
 		// Adds label to register user
 		registerNow.setText("Not a user?  Register Now!");
@@ -124,9 +122,10 @@ public class LoginScreen extends JPanel implements MouseListener{
 		
 		// Add the loginContainer to panel as well as the game,
 		// since it will be in the same spot as the login container
+		add(introPanel);
 		add(loginContainer);
 		//add(game);
-		add(mainMenu);
+		add(mainMenuPanel);
 		
 		registerNow.addMouseListener(this);
 		
@@ -154,7 +153,7 @@ public class LoginScreen extends JPanel implements MouseListener{
 		jbtExit.addActionListener(new ActionListener() {
 	    	// Handle ActionEvent 
 	    	public void actionPerformed(ActionEvent e) {
-            	TestGame.Instance.SendMessage(new String(), "LOGOUT");
+            	//TestGame.Instance.SendMessage(new String(), "LOGOUT");
 	    		System.exit(0);
 	    	}
 	    });
@@ -163,7 +162,7 @@ public class LoginScreen extends JPanel implements MouseListener{
 		KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke("ESCAPE");
 		Action escapeAction = new AbstractAction(){
 		    public void actionPerformed(ActionEvent e){
-            	TestGame.Instance.SendMessage(new String(), "LOGOUT");
+            	//TestGame.Instance.SendMessage(new String(), "LOGOUT");
 		        System.exit(0);
 		    }
 		};
@@ -189,9 +188,9 @@ public class LoginScreen extends JPanel implements MouseListener{
 		    Thread.currentThread().interrupt();
 		}
 		
-		if(TestGame.Instance.isValidLogin()){	
+		if(TestGame.Instance.isValidLogin){	
 			loginContainer.setVisible(false);
-			mainMenu.setVisible(true);
+			mainMenuPanel.setVisible(true);
 			userName.setText("");
 			password.setText("");
 			//game.setVisible(true);
@@ -199,15 +198,15 @@ public class LoginScreen extends JPanel implements MouseListener{
     		//chatPanel.setVisible(true);
     		//setBackground(Color.WHITE);
     		setBorder(new MatteBorder(10, 20, 10, 5, new Color(47, 47, 47)));
-    		upError.setVisible(false);
+    		userPassError.setVisible(false);
 		}
-		else if(!TestGame.Instance.isValidLogin() && TestGame.Instance.isDuplicateLogin()) {
-			upError.setText("*This username is already logged in.");
-			upError.setVisible(true);
+		else if(!TestGame.Instance.isValidLogin && TestGame.Instance.isDuplicateLogin) {
+			userPassError.setText("*This username is already logged in.");
+			userPassError.setVisible(true);
 		}
 		else{
-			upError.setText("*Sorry, username or password is incorrect.");
-			upError.setVisible(true);
+			userPassError.setText("*Sorry, username or password is incorrect.");
+			userPassError.setVisible(true);
 		}		
 	}	
 	
@@ -224,23 +223,18 @@ public class LoginScreen extends JPanel implements MouseListener{
 	public void mousePressed(MouseEvent me){}
 	public void mouseReleased(MouseEvent me){
 		if(me.getButton() == MouseEvent.BUTTON1){
-			rgUser.setVisible(true);
+			rgsterPanel.setVisible(true);
 		}
-	}
-	
-	// Adds a method to get UserPanel (So that it can be added to frame, not loginPanel)
-	public UserPanel getUserPanel(){
-		return users;
-	}
-	
-	// Adds a method to get ChatPanel (Again so that it can be returned to Frame and used)
-	public ChatPanel getChatPanel(){
-		return chatPanel;
 	}
 	
 	// Adds a method to get ChatPanel (Again so that it can be returned to Frame and used)
 	public MainMenuPanel getMainMenuPanel(){
-		return mainMenu;
+		return mainMenuPanel;
+	}
+	
+	// Adds a method to get ChatPanel (Again so that it can be returned to Frame and used)
+	public IntroPanel getIntroPanel(){
+		return introPanel;
 	}
 	
 	// Adds a method to get ChatPanel (Again so that it can be returned to Frame and used)

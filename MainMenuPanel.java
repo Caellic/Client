@@ -35,7 +35,7 @@ public class MainMenuPanel extends JPanel implements MouseListener{
 		
 		// Create button panel, set properties
 		jbtContainer = new JPanel(new GridLayout(5, 1, 0, 0));
-		jbtContainer.setBackground( new Color(47, 47, 47) );
+		jbtContainer.setBackground( new Color( 41, 41, 41) );
 		
 		// Create Main Menu label, set props
 		lblMainMenu = new JLabel("Main Menu");
@@ -100,6 +100,7 @@ public class MainMenuPanel extends JPanel implements MouseListener{
 		}
 		if(me.getSource() == jbtExit){
 			setJBTPropsHighlight(jbtExit);
+			jbtExit.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
 		}
 	}
 	public void mouseExited(MouseEvent me){
@@ -115,6 +116,7 @@ public class MainMenuPanel extends JPanel implements MouseListener{
 		}
 		if(me.getSource() == jbtExit){
 			setJBTProps(jbtExit);
+			jbtExit.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
 		}
 	}
 	public void mousePressed(MouseEvent me){}
@@ -130,88 +132,87 @@ public class MainMenuPanel extends JPanel implements MouseListener{
 			    Thread.currentThread().interrupt();
 			}
 			
+			TestGame.Instance.clientFrame.loginPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 			// Set main menu panel false, set other panels true
 			innerContainer.setVisible(false);
 			gamePanel.setVisible(true);
     		users.setVisible(true);
     		chatPanel.setVisible(true);
     		gamePanel.setBackground( Color.WHITE );
-    		ClientFrame.loginPanel.setBackground( Color.WHITE );
+    		TestGame.Instance.clientFrame.loginPanel.setBackground( Color.WHITE );
     		setBackground( Color.WHITE );
-    		
+    		jbtStartGame.setText("Resume");
     		gamePanel.lblPlayer1.setText("Player 1:  " + TestGame.Instance.game.getPlayer1());
 		}
 		if(me.getSource() == jbtStartGame && jbtStartGame.getText() == "Resume"){
 			// If jbtStartGame no longer says Start Game, and instead says Resume
 			// Then no need to let server know that user has started game.
 			// Probably could put this stuff in another method, since it's duplicate code
+			TestGame.Instance.clientFrame.loginPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 			innerContainer.setVisible(false);
 			gamePanel.setVisible(true);
     		users.setVisible(true);
     		chatPanel.setVisible(true);
-    		gamePanel.setBackground( Color.WHITE );
-    		ClientFrame.loginPanel.setBackground( Color.WHITE );
+    	//	gamePanel.setBackground( Color.WHITE );
+    		TestGame.Instance.clientFrame.setBackground( Color.WHITE );
     		setBackground( Color.WHITE );
 		}
 		if(me.getSource() == jbtJoinGame){
-			// Let server know, user has started game
-			TestGame.Instance.SendMessage(new String(), "JOINGAME");
-			
-			try {
-			    Thread.sleep(100);                 //1000 milliseconds is one second.
-			} catch(InterruptedException ex) {
-			    Thread.currentThread().interrupt();
-			}
-			if(isJoinable){
-				innerContainer.setVisible(false);
-				gamePanel.setVisible(true);
-				users.setVisible(true);
-				chatPanel.setVisible(true);
-				gamePanel.setBackground( Color.WHITE );
-				ClientFrame.loginPanel.setBackground( Color.WHITE );
-				setBackground( Color.WHITE );
-			}
-			else{
-				JOptionPane.showMessageDialog(this,
-					    "There are no available games to join at this time.");
-			}
+			 if(jbtStartGame.getText() == "Resume"){
+				 JOptionPane.showMessageDialog(this,
+						    "You are already in a game.");
+			 }
+			 else{
+				// Let server know, user has started game
+				TestGame.Instance.SendMessage(new String(), "JOINGAME");
+				
+				try {
+				    Thread.sleep(100);                 //1000 milliseconds is one second.
+				} catch(InterruptedException ex) {
+				    Thread.currentThread().interrupt();
+				}
+				if(isJoinable){
+					TestGame.Instance.clientFrame.loginPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+					innerContainer.setVisible(false);
+					gamePanel.setVisible(true);
+					users.setVisible(true);
+					chatPanel.setVisible(true);
+					gamePanel.setBackground( Color.WHITE );
+					TestGame.Instance.clientFrame.loginPanel.setBackground( Color.WHITE );
+					setBackground( Color.WHITE );
+					jbtStartGame.setText("Resume");
+				}
+				else{
+					JOptionPane.showMessageDialog(this,
+						    "There are no available games to join at this time.");
+				}
+			 }
 		}
-		if(me.getSource() == jbtOptions){
-			
-		}
+		if(me.getSource() == jbtOptions){}
 		if(me.getSource() == jbtLogout){
-			if(jbtStartGame.getText() == "Start Game"){
-				// User never actually entered game, so log out user - 
-				// This just lets server know to remove the name from the list
-				// Since user does not need to be removed from UserList
-				TestGame.Instance.SendMessage(new String(), "LOGOUTUSER");
-			}
-			else{
-				// User has entered game, must remove username from names list
-				// As well as the actual user list, also reset text back to start game
-				// For when user re-enters with same client
-				TestGame.Instance.SendMessage(new String(), "LOGOUT");
+			if(jbtStartGame.getText() != "Start Game"){
 				jbtStartGame.setText("Start Game");
+				TestGame.Instance.SendMessage(new String(), "QUITGAME"); 
 			}
+			
+			TestGame.Instance.SendMessage(new String(), "LOGOUT");
 			
 			// Logout - Have loginpanel set back to visible
 			// Set this panel to false
 			// Set chatbox text to empty - No residual text left over from last login
 			// If user uses same client to log back in.
-			ClientFrame.loginPanel.loginContainer.setVisible(true);
+			TestGame.Instance.clientFrame.loginPanel.loginContainer.setVisible(true);
 			setVisible(false);
 			chatPanel.chatBox.setText("");
 		}
 		if(me.getSource() == jbtExit){
-			if(jbtStartGame.getText() == "Start Game"){
-				TestGame.Instance.SendMessage(new String(), "LOGOUTUSER");
+    		TestGame.Instance.SendMessage(new String(), "LOGOUT");
+    		
+			if(TestGame.Instance.game != null){            		
+        		TestGame.Instance.SendMessage(new String(), "QUITGAME"); 
 			}
-			else{
-				TestGame.Instance.SendMessage(new String(), "LOGOUT");
-				jbtStartGame.setText("Start Game");
-			}
-			System.exit(0);
 			
+			System.exit(0);			
 		}
 	}
 	

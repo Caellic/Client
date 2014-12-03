@@ -1,7 +1,5 @@
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -14,20 +12,21 @@ import javax.swing.JFrame;
 
 
 public class ClientFrame extends JFrame implements MouseListener{
-	/** Private data members */
-	private JPanel frame = new JPanel();
-	private TitlePanel title = new TitlePanel();
-	static LoginScreen loginPanel = new LoginScreen();
+	/** Data Members */
+	JPanel 		innerFrame = new JPanel();	
+	TitlePanel  titlePanel = new TitlePanel();
+	LoginScreen loginPanel = new LoginScreen();
+	IntroPanel  introPanel = loginPanel.getIntroPanel();
 	MainMenuPanel mainMenu = loginPanel.getMainMenuPanel();
-	private UserPanel users;
-	private ChatPanel chatPanel;
+	UserPanel 	 userPanel = mainMenu.getUserPanel();
+	ChatPanel 	 chatPanel = mainMenu.getChatPanel();
 		
 	//Prototype instructions
-	private JTextArea instructions;	
+	private JTextArea instructions;
 	
-	/** Constructor for frame */
+	/** Constructor for Client Frame */
 	public ClientFrame(){
-		// Set details for frame
+		// Set details for client frame
 		setTitle("Tic Tac Toe");
 		setLayout(new BorderLayout(0, 0));
 		setSize(900, 700);
@@ -37,23 +36,21 @@ public class ClientFrame extends JFrame implements MouseListener{
 		
 		// Frame panel to hold login, and chat panel
 		// done to make sure side panel stretches across the entire right side
-		frame.setVisible(true);
-		frame.setLayout(new BorderLayout(0, 0));
-		frame.add(loginPanel, BorderLayout.CENTER);
-		
-		// Get chat panel from login panel to display
-		chatPanel = mainMenu.getChatPanel();
-		frame.add(chatPanel, BorderLayout.SOUTH);
+		innerFrame.setVisible(true);
+		innerFrame.setLayout(new BorderLayout(0, 0));
 		
 		// Add panels to frame
-		add(title, BorderLayout.NORTH);
-		add(frame, BorderLayout.CENTER);		
+		innerFrame.add(loginPanel, BorderLayout.CENTER);
+		innerFrame.add(chatPanel, BorderLayout.SOUTH);
 		
-		// Get user panel from login panel to display
-		users = mainMenu.getUserPanel();
-		add(users, BorderLayout.EAST);
+		// Add panels to client frame
+		add(titlePanel, BorderLayout.NORTH);
+		add(innerFrame, BorderLayout.CENTER);		
+		add(userPanel, BorderLayout.EAST);
 		
-		users.jbtMainMenu.addMouseListener(this);
+		// Add Mouse Listeners for userPanel
+		userPanel.jbtMainMenu.addMouseListener(this);
+		userPanel.jbtQuitGame.addMouseListener(this);		
 		
 		// Prototype Stuff 
 		/*
@@ -69,108 +66,75 @@ public class ClientFrame extends JFrame implements MouseListener{
 		frame.add(instructions, BorderLayout.NORTH);
 		*/
 		
-		// Argh
+		/** Forcing game max/min size, since to many panels deep to naturally fill panel */
+		this.addWindowStateListener(new WindowStateListener() {
+	        @Override
+	        public void windowStateChanged(WindowEvent e) {
+	    	   int oldState = e.getOldState();
+	           int newState = e.getNewState();
+	           Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	           
+	           if( (oldState & Frame.MAXIMIZED_BOTH) == 0
+	        	 && (newState & Frame.MAXIMIZED_BOTH) != 0) {
+	        	   mainMenu.setPreferredSize(new Dimension(screenSize.width - 470, screenSize.height - 340));
+	        	   mainMenu.gamePanel.setPreferredSize(new Dimension(screenSize.width - 490, screenSize.height - 360));
+	           }
+	           if( (oldState & Frame.MAXIMIZED_BOTH) != 0
+	            && (newState & Frame.NORMAL) == 0){
+	        	   mainMenu.setPreferredSize(new Dimension(520, 395));
+	        	   mainMenu.gamePanel.setPreferredSize(new Dimension(500, 390));
+	           }
+	        }
+	    });
+		
+		/** If user exits game, do appropriate action */
 		this.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent ev) {       
-            	if(chatPanel.isVisible()){
+            public void windowClosing(WindowEvent e) {   
+            	if(TestGame.Instance.game != null){            		
+            		TestGame.Instance.SendMessage(new String(), "QUITGAME"); 
             		TestGame.Instance.SendMessage(new String(), "LOGOUT");
+
+            		//System.out.println("Why does it keep breaking?");
             	}
             	else{
-            		TestGame.Instance.SendMessage(new String(), "LOGOUTUSER");
+            		if(mainMenu.isVisible()){
+            			TestGame.Instance.SendMessage(new String(), "LOGOUT");     
+            		}
             	}
             }
-        });
-		
+        });		
 	}	
 	
 	/** Sets the text of the user list... directly */
 	public void setUsers(String usersLists){
-		users.userList.setText(usersLists +"\n");
-	}
-	
-	/** Method sets and returns attributes for Username/Events */
-	public SimpleAttributeSet getUserAttributes(Color c){
-		SimpleAttributeSet userAttr = new SimpleAttributeSet();
-		StyleConstants.setForeground(userAttr, c);
-		StyleConstants.setAlignment(userAttr , StyleConstants.ALIGN_LEFT); 
-		StyleConstants.setBold(userAttr, true);
-		
-		return userAttr;
-	}
-	
-	/** Method inserts text stating user has exited, directly */
-	public void setUserExited(String chatMsg){
-		SimpleAttributeSet userName = getUserAttributes(new Color(119, 159, 140));
-		
-		int index = chatMsg.indexOf(" ");
-		String user = chatMsg.substring(index + 1, chatMsg.length());
-		
-		try {
-			//chatPanel.doc.insertString(0, user + ": ", pretendUserAttr );
-			if(chatPanel.isVisible()){
-				chatPanel.doc.insertString(chatPanel.doc.getLength(), user + " has exited the game.\n", userName);
-				//chatPanel.doc.setParagraphAttributes(0, user.length(), stuffSaid, true);
-			}
-			
-		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	/** Method inserts text stating user has entered, directly */
-	public void setUserEntered(String chatMsg){
-		SimpleAttributeSet userName = getUserAttributes( new Color(119, 159, 140) );
-		
-		int index = chatMsg.indexOf(" ");
-		String user = chatMsg.substring(index + 1, chatMsg.length());
-		
-		try {
-			//chatPanel.doc.insertString(0, user + ": ", pretendUserAttr );
-			chatPanel.doc.insertString(chatPanel.doc.getLength(), user + " has entered game.\n", userName);
-			//chatPanel.doc.setParagraphAttributes(0, user.length(), stuffSaid, true);
-			
-		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	/** Method inserts text that user has typed, directly */
-	public void setMsg(String chatMsg){
-		SimpleAttributeSet userName  = getUserAttributes( new Color(44, 146, 198) );		
-		SimpleAttributeSet stuffSaid = new SimpleAttributeSet();
-		
-		try {
-			int index = chatMsg.indexOf(" ");
-			String userString = chatMsg.substring(0, index) + " : ";
-			String msgString  = chatMsg.substring(index, chatMsg.length());
-			
-			//chatPanel.doc.insertString(0, user + ": ", pretendUserAttr );
-			chatPanel.doc.insertString(chatPanel.doc.getLength(), userString, userName);
-			chatPanel.doc.insertString(chatPanel.doc.getLength(), msgString, stuffSaid);
-			//chatPanel.doc.setParagraphAttributes(0, user.length(), stuffSaid, true);
-			chatPanel.chatBox.setCaretPosition(chatPanel.doc.getLength());
-			
-		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
+		userPanel.userList.setText(usersLists +"\n");
+	}	
+
 	/** MouseListeners */
 	public void mouseClicked(MouseEvent me){}
 	public void mouseEntered(MouseEvent me){}
 	public void mouseExited(MouseEvent me){}
 	public void mousePressed(MouseEvent me){}
 	public void mouseReleased(MouseEvent me){
-		if(me.getSource() == users.jbtMainMenu){
+		if(me.getSource() == userPanel.jbtMainMenu){
 			mainMenu.innerContainer.setVisible(true);
-			mainMenu.jbtStartGame.setText("Resume");
 			mainMenu.gamePanel.setVisible(false);
 			mainMenu.users.setVisible(false);
 			mainMenu.chatPanel.setVisible(false);
 			loginPanel.setBackground(new Color(47, 47, 47));
+			loginPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 90));
+			mainMenu.setBackground(new Color(47, 47, 47));
+		}
+		if(me.getSource() == userPanel.jbtQuitGame){
+			TestGame.Instance.SendMessage(new String(), "QUITGAME");
+			TestGame.Instance.game = null;
+			mainMenu.innerContainer.setVisible(true);
+			mainMenu.jbtStartGame.setText("Start Game");
+			mainMenu.gamePanel.setVisible(false);
+			mainMenu.users.setVisible(false);
+			mainMenu.chatPanel.setVisible(false);
+			loginPanel.setBackground(new Color(47, 47, 47));
+			loginPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 90));
 			mainMenu.setBackground(new Color(47, 47, 47));
 		}
 	}	

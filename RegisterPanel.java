@@ -9,7 +9,7 @@ import java.awt.event.MouseListener;
 import javax.swing.*;
 
 
-public class RegisterUser extends JFrame implements MouseListener {
+public class RegisterPanel extends JFrame implements MouseListener {
 	
 	JLabel lblRegisterAccount, lblUsername, lblPassword, lblConfPass;
 	JTextField txtUsername, txtPassword, txtConfPass;
@@ -24,7 +24,7 @@ public class RegisterUser extends JFrame implements MouseListener {
 			passwordValid = false, 
 			passwordMatch = false;
 	
-	public RegisterUser() {// Set details for frame
+	public RegisterPanel() {// Set details for frame
 		setTitle("Register");
 		setLayout(new BorderLayout(0, 0));
 		setSize(425, 300);
@@ -123,7 +123,7 @@ public class RegisterUser extends JFrame implements MouseListener {
 	public void mouseReleased(MouseEvent me){
 		if(me.getSource() == jbtRegister){
 			if(!txtUsername.getText().equals("")){
-				TestGame.Instance.RegisterUsername(txtUsername.getText());
+				TestGame.Instance.testRegistration(txtUsername.getText());
 				try {
 					Thread.sleep(200);
 				} catch (InterruptedException e) {

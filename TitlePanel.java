@@ -10,8 +10,9 @@ public class TitlePanel extends JPanel{
 	private JLabel title = new JLabel("Tic-Tac-Toe");
 	
 	public TitlePanel(){
-		setLayout(new FlowLayout(FlowLayout.CENTER, 0, 30));
+		setLayout(new FlowLayout(FlowLayout.CENTER, 0, 20));
 		setBackground(new Color(41, 41, 41));
+		setVisible(false);
 		//title.setForeground(new Color(50, 165, 224));
 		title.setForeground(new Color(119, 159, 140));
 		
